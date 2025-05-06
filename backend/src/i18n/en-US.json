@@ -1,0 +1,6 @@
+{
+  "HELLO": "Hello",
+  "LOGIN": "Login",
+  "USERNAME_REQUIRED": "Please enter username",
+  "PASSWORD_REQUIRED": "Please enter password"
+}
