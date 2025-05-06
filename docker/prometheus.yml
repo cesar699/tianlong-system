@@ -1,0 +1,54 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files:
+  # - "alert.rules.yml"
+
+scrape_configs:
+
+  # Prometheus 自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter (主机指标)
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # NestJS (如通过 prometheus-middleware 暴露 /metrics)
+  - job_name: 'nestjs_app'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['backend:3000']
+
+  # Redis (需要 redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # MongoDB (需要 mongodb_exporter)
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+
+  # MySQL (需要 mysqld_exporter)
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysqld-exporter:9104']
+
+  # RabbitMQ (需要 rabbitmq_exporter)
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq-exporter:9419']
+
+  # Jaeger (如果启用了 Prometheus metrics)
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
