@@ -1,5 +1,4 @@
-
-version: '3'
+version: '3.8'
 
 services:
   mysql:
@@ -12,137 +11,16 @@ services:
       MYSQL_PASSWORD: tianlong123
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   redis:
     image: redis:6
     restart: always
     ports:
       - "6379:6379"
     volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-
-  # Elasticsearch for content search
-
-  elasticsearch:
-
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
-
-    environment:
-
-      - discovery.type=single-node
-
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-
-    ports:
-
-      - '9200:9200'
-
-    volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-
-      - es_data:/usr/share/elasticsearch/data
-
-
-  # Monitoring and Tracing
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
-  grafana:
-    image: grafana/grafana
-    ports:
-      - '3000:3000'
-    depends_on:
-      - prometheus
-  jaeger:
-    image: jaegertracing/all-in-one
-    ports:
-      - '6831:6831/udp'
-      - '16686:16686'
-
-  # 分布式队列 Worker 服务，可通过 --scale worker=<n> 扩展
-  worker:
-    build: ./backend
-    command: npm run start:worker
-    env_file:
-      - .env
-    volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-      - ./backend:/app/backend
-    depends_on:
-      - redis
-  redis_data:
       - redis_data:/data
-    volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-      - mysql_data:/var/lib/mysql
 
   mongodb:
     image: mongo:6
@@ -150,92 +28,84 @@ services:
     ports:
       - "27017:27017"
     volumes:
+      - mongo_data:/data/db
 
-  # RabbitMQ for messaging queue
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - '9200:9200'
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
   rabbitmq:
     image: rabbitmq:3-management
     ports:
       - '5672:5672'
       - '15672:15672'
 
-  # Consul for configuration management
   consul:
     image: consul:1.9
     command: 'agent -dev -client=0.0.0.0'
     ports:
       - '8500:8500'
-      - mongo_data:/data/db
+    volumes:
+      - consul_data:/consul/data
+
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - '6831:6831/udp'
+      - '16686:16686'
 
   backend:
     build: ./backend
     ports:
       - "3000:3000"
-    volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-      - ./backend:/app
-    depends_on:
-      - mysql
-      - mongodb
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: tianlong
       MYSQL_PASSWORD: tianlong123
       MYSQL_DATABASE: tianlong
-      MONGO_URI: mongodb://mongo:27017/tianlong
+      MONGO_URI: mongodb://mongodb:27017/tianlong
+    depends_on:
+      - mysql
+      - mongodb
+      - redis
     command: npm run start:dev
+
+  worker:
+    build: ./backend
+    command: npm run start:worker
+    depends_on:
+      - backend
 
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
-    volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
-      - ./frontend:/app
     command: npm run dev
 
 volumes:
-
-  # RabbitMQ for messaging queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - '5672:5672'
-      - '15672:15672'
-
-  # Consul for configuration management
-  consul:
-    image: consul:1.9
-    command: 'agent -dev -client=0.0.0.0'
-    ports:
-      - '8500:8500'
   mysql_data:
   mongo_data:
+  redis_data:
   es_data:
   consul_data:
