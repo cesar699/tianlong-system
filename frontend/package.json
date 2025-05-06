@@ -1,0 +1,15 @@
+
+{
+  "name": "tianlong-system-frontend",
+  "version": "1.0.0",
+  "description": "天龙系统 前端应用",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "vue": "^3.2.0",
+    "element-plus": "^2.3.0"
+    // ... 其他依赖
+  }
+}

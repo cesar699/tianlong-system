@@ -1,0 +1,14 @@
+{
+  "login": "登录",
+  "usernameRequired": "请输入用户名",
+  "passwordRequired": "请输入密码",
+  "money": {
+    "title": "信息变现机会",
+    "risk": "风险",
+    "profit": "预计收益",
+    "timeCost": "耗时",
+    "successRate": "成功率",
+    "enable": "启用",
+    "disable": "禁用"
+  }
+}

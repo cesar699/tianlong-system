@@ -1,0 +1,15 @@
+
+/* Responsive Design */
+body, html {
+  margin: 0;
+  padding: 0;
+}
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .mobile-nav { display: block; }
+}

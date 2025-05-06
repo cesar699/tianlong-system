@@ -1,0 +1,21 @@
+
+:root {
+  --bg-color: #1B263B;
+  --header-bg: linear-gradient(90deg, #0D1B2A, #1B263B);
+  --primary-color: #FFD60A;
+  --text-color: #E0E1DD;
+  --sub-text-color: #A1A4B2;
+}
+.base-layout { display: flex; height: 100vh; color: var(--text-color); }
+.header {
+  display: flex; align-items: center; padding: 0 20px;
+  background: var(--header-bg); color: var(--text-color);
+}
+.header .logo { font-size: 20px; font-weight: bold; margin-right: 40px; }
+.module-tabs { flex: 1; }
+.sidebar {
+  width: 200px; background: var(--bg-color); transition: width 0.3s;
+}
+.sidebar.collapsed { width: 64px; }
+.content { flex: 1; background: #0D1B2A; padding: 20px; overflow: auto; }
+.collapse-btn { text-align: center; padding: 10px; cursor: pointer; color: var(--text-color); }

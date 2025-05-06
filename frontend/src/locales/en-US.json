@@ -1,0 +1,14 @@
+{
+  "login": "Login",
+  "usernameRequired": "Please enter username",
+  "passwordRequired": "Please enter password",
+  "money": {
+    "title": "Money Opportunities",
+    "risk": "Risk",
+    "profit": "Estimated Profit",
+    "timeCost": "Time Cost",
+    "successRate": "Success Rate",
+    "enable": "Enable",
+    "disable": "Disable"
+  }
+}
