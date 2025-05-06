@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   mysql:
@@ -11,8 +11,6 @@ services:
       MYSQL_PASSWORD: tianlong123
     ports:
       - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:6
@@ -21,24 +19,6 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-
-  mongodb:
-    image: mongo:6
-    restart: always
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - '9200:9200'
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -51,8 +31,16 @@ services:
     command: 'agent -dev -client=0.0.0.0'
     ports:
       - '8500:8500'
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - '9200:9200'
     volumes:
-      - consul_data:/consul/data
+      - es_data:/usr/share/elasticsearch/data
 
   prometheus:
     image: prom/prometheus
@@ -74,38 +62,42 @@ services:
       - '6831:6831/udp'
       - '16686:16686'
 
+  worker:
+    build: ./backend
+    command: npm run start:worker
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+
   backend:
     build: ./backend
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mysql
+      - mongodb
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: tianlong
       MYSQL_PASSWORD: tianlong123
       MYSQL_DATABASE: tianlong
-      MONGO_URI: mongodb://mongodb:27017/tianlong
-    depends_on:
-      - mysql
-      - mongodb
-      - redis
+      MONGO_URI: mongodb://mongo:27017/tianlong
     command: npm run start:dev
-
-  worker:
-    build: ./backend
-    command: npm run start:worker
-    depends_on:
-      - backend
 
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend:/app
     command: npm run dev
 
 volumes:
-  mysql_data:
-  mongo_data:
   redis_data:
   es_data:
-  consul_data:
+  mysql_data:
+  mongo_data:
