@@ -119,10 +119,16 @@ volumes:
     depends_on:
       - mysql
       - redis
+      backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
     environment:
-      - NODE_ENV=production
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USERNAME=tianlong
       - DB_PASSWORD=tianlong123
       - DB_DATABASE=tianlong
+    depends_on:
+      - mysql
+      - redis
